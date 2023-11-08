@@ -14,7 +14,7 @@ Here is the demo from the workshop with the talking stripped out.  Replace `<NET
 
 ## Building and Running
 
-1. Create the `Dockerfile` file using your favorite text editor.
+1. Create the `Dockerfile` file using your favorite text editor.  Be cognizant of the name you get.  Some text editors will silently append `.txt` resulting in `Dockerfile.txt` (e.g. Windows notepad). You will need to make sure you specify the correct filename in step 3 where you build the image.
    ```
    FROM python:3.12.0-alpine3.18
    COPY fib.py src/
