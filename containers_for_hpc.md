@@ -2,7 +2,7 @@
 
 ## Containers, why do they exist (efficiency)
 
-- The earliest computers could only run one program at a time.
+- The earliest computers (50+ years ago) could only run one program at a time.
 - Multi-tasking operating systems run multiple programs simultaneously on one computer - with caveats related to unshareable resources and to security.  This was a huge step forward for efficient use of hardware.
 - VMs (virtual machines) run multiple "virtual" computers on one physical computer. Each VM has its own emulated hardware and its own operating system. VMs address the caveats for programs sharing a multi-tasking operating system, but have a lot of overhead which reduces efficiency.
 - Containers provide programs with (most of) the isolation of VMs and (most of) the efficiency of a multi-tasking operating system.
@@ -228,102 +228,13 @@ $ cat fibonacci-8368448.out
 
 Time to publish our results!
 
-## Going through the example yourself
+## More Technical Detail
 
-Here is the process with all the talking stripped out.  You can literally go through this in a couple minutes if you copy and paste the commands (replace `<NETID>` with your own NetID of course).
+The classic analogy used to describe containers is that a physical host (or a VM) with a multi-tasking OS is a single family mansion while containers are apartments in a similarly sized building.  Programs (occupants) running in a multi-tasking operating system share everything with other programs; rooms, utilities, furniture, furnishings, decorations, etc.  A program running in a container only shares a few utilities like electrical, water, and septic services; everything else it brings with it to furnish the private rooms in its apartment.  
 
-1. If you don't already have an account on the Discovery cluster, request one at the [Research Computing Dashboard](https://dashboard.dartmouth.edu/research/hpc_account).
+So how does that really work? What are the utilities that programs running in containers share?  The key to restricting what containers can see and use is kernel namespaces.
 
-2. You need a way to run Docker on your personal computer.  We suggest installing [Rancher Desktop](https://rancherdesktop.io/) because it is free for any usage. [Docker Desktop](https://www.docker.com/products/docker-desktop/) is also an excellent choice with the caveat that it is not free for commercial purposes so you should read the licensing terms to make sure you qualify.
-
-Steps 3 - 7 are on your personal computer, the rest are run on Discovery.
-
-3. Create the Dockerfile - this uses a nifty shell trick so you can just paste this into your terminal and hit enter to create the file.
-   ```
-   cat << 'EOF' > Dockerfile
-   FROM python:3.12.0-alpine3.18
-   COPY fib.py src/
-   EOF
-   ```
-4. Create the fib.py script - same shell trick
-   ```
-   cat << 'EOF' > fib.py
-   import sys
-   
-   # Each number in the Fibonacci sequence is the sum of the preceding two numbers
-   # Traditionally, the first two numbers are 0 and 1
-   def fib(x):
-      if x == 0: return 0
-      if x == 1: return 1
-      else: return(fib(x-1)+fib(x-2))
-   
-   fib_num = int(sys.argv[1])
-   print(fib(fib_num))
-   EOF
-   ```
-5. Build the image from the Dockerfile
-* For Intel computers
-   ```
-   docker build --file Dockerfile -t fibonacci .
-   ```
-* *For non-Intel Macs*
-   ```
-   docker buildx build --platform linux/amd64 --file Dockerfile -t fibonacci .
-   ```
-
-6. Save the image from to a single file.
-
-   ```
-   docker save fibonacci -o fibonacci.tar
-   ```
-
-7. Copy the file to discovery
-   ```
-   scp fibonacci.tar <NETID>@discovery:
-   ```
-
-8. Login to the Discovery head node
-   ```
-   ssh <NETID>@discovery
-   ```
-
-9. Convert the Docker image to an Apptainer image
-   ```
-   apptainer build fibonacci docker-archive://fibonacci.tar
-   ```
-
-10. Create an sbatch file
-    ```
-    cat << 'EOF' > fib-sbatch.sh
-    #!/bin/bash
-    #SBATCH --job-name=fibonacci
-    #SBATCH --output=%x-%J.out
-    #SBATCH --nodes=1
-    #SBATCH --ntasks=1
-    #SBATCH --cpus-per-task=1
-    #SBATCH --mem=100M
-    #SBATCH --time=00:01:00
-    apptainer exec fibonacci python -u /src/fib.py 10
-    EOF
-    ```
-11. Submit a job 
-    ```
-    sbatch fib-sbatch.sh
-    ```
-
-12. Check the results (most recent output file if you have run the job more than once)
-    ```
-    ls -l fibonacci-*.out
-    cat fibonacci-<JOBID>.out
-    ```
-
-## Technical Details
-
-The classic analogy is that a physical host (or a VM) with a multi-tasking OS is a single family mansion while containers are apartments in a similarly sized building.  Programs on a physical host share everything; utilities, furniture, furnishings, decorations, etc.  Programs in a container only share a few utilities like electrical, water, and septic services; everything else they bring with them to furnish the apartment.  
-
-So how does that really work? What are the utilities that containers share?  The key to restricting what containers can see and use is kernel namespaces.
-
-Namespaces partition kernel resources. A process in a namespace is restricted to seeing only the resources in its namespace.  Containers typically have 7 or 8 namespaces for partitioning different types of resources.  They are
+Namespaces partition kernel resources. A process in a namespace is restricted to seeing only the resources in that namespace.  Containers typically belong to 7 or 8 namespaces for partitioning different types of resources.  They are
 
 * PID - processes have their own set of PIDs that are independent of those in the rest of the OS
 * net - processes have their own IP address and ports
@@ -334,9 +245,17 @@ Namespaces partition kernel resources. A process in a namespace is restricted to
 * cgroup - processes can be forced to see and use only a subset of the CPU and RAM available (typically, though control groups can limit things like I/O bandwidth too)
 * time - processes in a container can have their own time (Mars standard time?)
 
-That provides all the isolation most programs need,though it is important to remember that the cgroup resources are ultimately still constrained by what's available on the physical host.  You can't fill an apartment with crypto mining hardware without tripping breakers.  And you can't fill a host with cryptomining containers without crashing it.
+That provides very good isolation between programs, though it is important to remember that things like the CPU and RAM from the cgroup namespace are ultimately still constrained by what's available on the physical host.  You can't fill an apartment with crypto mining hardware without tripping breakers.  And you can't fill a host with crypto mining containers without bringing it to a standstill.
 
-In terms of efficiency, by not needing to be "general purpose" computers, containers can be really focused with their furnishings.  e.g. A "minimal" Ubuntu installation (like you might put in a VM) is usually several gigabytes while a container based on alpine starts at about 8MB.  The problems with programs not "playing nice" with each other in a shared environment are very real, which was why VMs were invented, but the overhead of a VM is so much greater than that of containers.
+In terms of efficiency, by not needing to be "general purpose" computers, containers can be really selective with their furnishings.  For example, a "minimal" Ubuntu installation (like you might put in a VM) is usually several gigabytes while a container based on alpine starts at about 8MB.  Of course you need to add your program and its dependencies to the 8MB so that number will grow, sometimes a lot, but the savings are usually still very significant.  
 
 ## Links to more information
-ToDo
+
+[Rancher Desktop](https://rancherdesktop.io/) - a free and open source option for installing Docker on your personal computer.
+
+[Docker Desktop](https://www.docker.com/products/docker-desktop/) - another option for installing Docker on your personal computer which is generally free for academic usage.
+
+[Docker Getting Started](https://docs.docker.com/get-started/) - the official documentation for getting started with Docker
+
+[Containers from Scratch](https://www.youtube.com/watch?v=8fi7uSYlOdc) - a superb "under the hood" presentation by Liz Rice on how to create containers without using something like Docker.
+
