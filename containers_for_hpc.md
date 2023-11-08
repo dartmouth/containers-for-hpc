@@ -258,5 +258,6 @@ In terms of efficiency, by not needing to be "general purpose" computers, contai
 
 [Docker Getting Started](https://docs.docker.com/get-started/) - the official documentation for getting started with Docker
 
-[Containers from Scratch](https://www.youtube.com/watch?v=8fi7uSYlOdc) - a superb "under the hood" presentation by Liz Rice on how to create containers without using something like Docker.
+[Containers from Scratch](https://www.youtube.com/watch?v=8fi7uSYlOdc) - a superb "under the hood" presentation by Liz Rice on how to create containers without using something like Docker or Apptainer.
 
+[Apptainer homepage](https://apptainer.org/)
