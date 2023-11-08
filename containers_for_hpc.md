@@ -11,7 +11,7 @@
 
 That's great.  Where is the benefit to research workloads on Dartmouth’s Discovery cluster? 
 
-Most programs are dependent on external libraries.  Those are traditionally provided by the operating system or by modules that Research Computing maintains.  The versions of those libraries WILL change as time goes by, which means that your program's behavior could change too. Containers package those libraries with your program so everything remains the same forever - or until you change something and make a new container image.
+Most programs are dependent on external libraries.  Those are traditionally provided by the operating system or by modules that Research Computing maintains.  The versions of those libraries WILL change as time goes by, which means that your program's behavior could change too. Containers package those libraries with your program so everything remains the same forever - or until you deliberately change something and make a new container image.
 
 Moreover, containers are very portable. Once containerized, a program can easily be run on Discovery, or on an HPC cluster at another school, or even at cloud providers such as AWS or GCP.
 
