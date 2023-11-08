@@ -9,7 +9,7 @@ Here is the demo from the workshop with the talking stripped out.  Replace `<NET
 * You need a way to run Docker on your personal computer.  We suggest installing [Rancher Desktop](https://rancherdesktop.io/) because it is free for any usage and available on Mac, Windows, and Linux.  [Docker Desktop](https://www.docker.com/products/docker-desktop/) is also an excellent choice with the caveat that it is not free for commercial purposes so you need to read the licensing terms to be sure that it's appropriate for you to use the free version.
 
 * Finally, you need to know how to open a terminal on your computer.  Installing Rancher Desktop will have configured the terminal so it has the docker commands available.
-   - Windows users can search the Start Menu for `Powershell ` and run it.
+   - Windows users can search the Start Menu for `Powershell` and run it.
    - Mac users can search Finder for `/Applications/Utilities/Terminal` and run that.
 
 ## Building and Running
