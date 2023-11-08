@@ -250,7 +250,7 @@ That provides very good isolation between programs, though it is important to re
 In terms of efficiency, by not needing to be "general purpose" computers, containers can be really selective with their furnishings.  For example, a "minimal" Ubuntu installation (like you might put in a VM) is usually several gigabytes while a container based on alpine starts at about 8MB.  Of course you need to add your program and its dependencies to the 8MB so that number will grow, sometimes a lot, but the savings are usually still very significant.  
 
 ## Links to more information
-[Workshop notes](https://git.dartmouth.edu/research-itc-public/containers-for-hpc/-/blob/master/containers_for_hpc.md)
+[Notes for this Workshop](https://git.dartmouth.edu/research-itc-public/containers-for-hpc/-/blob/master/containers_for_hpc.md)
 
 [Rancher Desktop](https://rancherdesktop.io/) - a free and open source option for installing Docker on your personal computer.
 
