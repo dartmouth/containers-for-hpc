@@ -15,7 +15,7 @@ Most programs are dependent on external libraries.  Those are traditionally prov
 
 Moreover, containers are very portable. Once containerized, a program can easily be run on Discovery, or on an HPC cluster at another school, or even at cloud providers such as AWS or GCP.
 
-So containers enable reproducibility across time and space.  Awesome!
+So containers enable better reproducibility across time and space.  Awesome!
 
 ## Definitions
 
